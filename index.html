@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket client</title>
+  </head>
+  <body>
+    <h2>Hello world desde server Maestro</h2>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+
+      let saludo = {
+        mensaje: "Hola amigos",
+        remitente: "Emanuel Sosa"
+      };
+
+      socket.emit("saludo", saludo);
+      socket.on("saludo:respuesta", data => {
+        console.log(data);
+      });
+    </script>
+  </body>
+</html>
