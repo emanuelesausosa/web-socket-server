@@ -14,6 +14,14 @@ function channels(server) {
       io.emit("saludo:respuesta", data);
     });
 
+    // canal para post en vivo
+    socket.on("post", data => {
+      console.log(`El cliente posteo: ${JSON.stringify(data)}`);
+
+      // envia una respuesta a todos los sockets
+      io.emit("ultimo:post", data);
+    });
+
     // socket diconnect
     socket.on("disconnect", () => {
       console.log(`Cliente desconectado ${socket.client.id}`);
