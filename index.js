@@ -15,6 +15,10 @@ server.get("/post", (req, res) => {
   res.sendFile(path.join(__dirname, "/post.html"));
 });
 
+server.get("/salas", (req, res) => {
+  res.sendFile(path.join(__dirname, "/salas.html"));
+});
+
 http.listen(port, () => {
   console.log(`> server start on http://localhost:${port}`);
 });

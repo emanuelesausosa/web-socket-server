@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket client</title>
+  </head>
+  <link
+    rel="stylesheet"
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+    crossorigin="anonymous"
+  />
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="#">Navbar</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarNavAltMarkup"
+        aria-controls="navbarNavAltMarkup"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+          <a class="nav-item nav-link active" href="/"
+            >Home <span class="sr-only">(current)</span></a
+          >
+          <a class="nav-item nav-link" href="/post">Post</a>
+          <a class="nav-item nav-link" href="/salas">Salas</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="row mt-5">
+        <div class="col-md-10">
+          <ul class="list-group"></ul>
+        </div>
+      </div>
+      <div class="row mt-5">
+        <div class="col-md-10">
+          <form class="form-inline">
+            <div class="input-group mb-2 mr-sm-2">
+              <label class="sr-only" for="userName">Sala</label>
+              <select
+                class="form-control browser-default custom-select"
+                id="salasMenu"
+              >
+                <option selected>Seleccione una sala</option>
+                <option value="Sala:1">Sala 1</option>
+                <option value="Sala:2">Sala 2</option>
+                <option value="Sala:3">Sala 3</option>
+              </select>
+            </div>
+
+            <label class="sr-only" for="textMessage">Text Message</label>
+            <input
+              type="text"
+              class="form-control mb-2 mr-sm-2"
+              id="textMessage"
+              placeholder="Escribe un mensaje"
+            />
+
+            <label class="sr-only" for="userName">Username</label>
+            <div class="input-group mb-2 mr-sm-2">
+              <div class="input-group-prepend">
+                <div class="input-group-text">@</div>
+              </div>
+              <input
+                type="text"
+                class="form-control"
+                id="userName"
+                placeholder="Username"
+              />
+            </div>
+
+            <button type="button" id="sendMessage" class="btn btn-primary mb-2">
+              Enviar
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script
+      src="https://code.jquery.com/jquery-3.4.1.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+      crossorigin="anonymous"
+    ></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      $(document).ready(function() {
+        const socket = io();
+
+        // establecer la sala seleccionada
+        let room = "";
+
+        // crear el evento de cambio de sala
+        $("#salasMenu").change(function() {
+          room = $("#salasMenu").val();
+
+          // conectar/enlazar cliente a una sala
+          socket.emit("unir:sala", room);
+        });
+
+        // preparar el mensaje
+        $("#sendMessage").click(function() {
+          if (room == "") {
+            alert("debe establacer una sala para un chat");
+          } else {
+            // estructurar el mensaje
+            let message = {
+              text: $("#textMessage").val(),
+              user: $("#userName").val()
+            };
+
+            // suscibirnos al envento que escucha los mensajes para dicha sala
+            socket.emit("mensaje:room", { room, message });
+          }
+        });
+
+        function addLastComment(message) {
+          // llamar el elemento padre de la lista (list-group)
+          let $listGroupPadre = $(".list-group");
+
+          // crear el elemento li (list-group-item)
+          let listItem = `<li class="list-group-item">
+            ${message.user} : ${message.text}
+            </li>`;
+
+          // append to parent
+          $listGroupPadre.append(listItem);
+        }
+
+        // suscribirnos a los mensajes del servidor (server -> emit)
+
+        socket.on("mensaje:room:respuesta", function(data) {
+          // console.log(data);
+
+          addLastComment(data);
+        });
+      });
+    </script>
+  </body>
+</html>

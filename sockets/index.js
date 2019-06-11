@@ -22,7 +22,24 @@ function channels(server) {
       io.emit("ultimo:post", data);
     });
 
-    // socket diconnect
+    // crear evento de la sala (join to room)
+    socket.on("unir:sala", room => {
+      socket.join(room);
+      console.log(
+        `El cliente: ${socket.client.id} se ha unido a la sala: ${room}`
+      );
+    });
+
+    socket.on("mensaje:room", ({ room, message }) => {
+      console.log(
+        `En la sala ${room} se ha dicho/enviado: ${JSON.stringify(message)}`
+      );
+
+      // enviar una respuesta a los sockets conectados
+      io.to(room).emit("mensaje:room:respuesta", message);
+    });
+
+    // socket disconnect
     socket.on("disconnect", () => {
       console.log(`Cliente desconectado ${socket.client.id}`);
     });
